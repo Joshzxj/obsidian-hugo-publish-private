@@ -1,4 +1,7 @@
 # Hugo Publish
+Private branch forked from https://github.com/kirito41dd/obsidian-hugo-publish to satisfied my needed.
+
+Below instructions are from original repo.
 
 This plugin helps you publish hugo blog through obsidian.
 

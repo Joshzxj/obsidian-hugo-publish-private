@@ -186,7 +186,7 @@ export default class HugoPublishPlugin extends Plugin {
 
 				// body = remark.stringify(ast);
 				body = toMarkdown(ast, { extensions: [mathToMarkdown(), gfmTableToMarkdown()] });
-				console.log(`write ${src} to ${dst}`);
+				// console.log(`write ${src} to ${dst}`);
 				await util.write_md(dst, header, body)
 			}
 		}
