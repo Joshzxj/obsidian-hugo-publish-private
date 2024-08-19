@@ -15,6 +15,7 @@ import { mathFromMarkdown, mathToMarkdown } from 'mdast-util-math'
 import { toMarkdown } from 'mdast-util-to-markdown'
 import { gfmTable } from 'micromark-extension-gfm-table'
 import { gfmTableFromMarkdown, gfmTableToMarkdown } from 'mdast-util-gfm-table'
+import { Console } from 'console';
 
 
 // Remember to rename these classes and interfaces!
@@ -36,69 +37,17 @@ export default class HugoPublishPlugin extends Plugin {
 			return;
 		}
 
-
-
-
-		// This creates an icon in the left ribbon.
-		this.addRibbonIcon('folder-sync', 'hugo sync', async (evt: MouseEvent) => {
-			await this.sync_blog();
-		});
-		// Perform additional things with the ribbon
-		// ribbonIconEl.addClass('my-plugin-ribbon-class');
-
-		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
-		// const statusBarItemEl = this.addStatusBarItem();
-		// statusBarItemEl.setText('hugo-publish');
-
 		// This adds a simple command that can be triggered anywhere
 		this.addCommand({
 			id: 'sync-blog',
 			name: 'Sync blog',
 			callback: async () => {
-				// new SampleModal(this.app).open();
 				await this.sync_blog();
 			}
 		});
-		// This adds an editor command that can perform some operation on the current editor instance
-		// this.addCommand({
-		// 	id: 'sample-editor-command',
-		// 	name: 'Sample editor command',
-		// 	editorCallback: (editor: Editor, view: MarkdownView) => {
-		// 		console.log(editor.getSelection());
-		// 		editor.replaceSelection('Sample Editor Command');
-		// 	}
-		// });
-		// This adds a complex command that can check whether the current state of the app allows execution of the command
-		// this.addCommand({
-		// 	id: 'open-sample-modal-complex',
-		// 	name: 'Open sample modal (complex)',
-		// 	checkCallback: (checking: boolean) => {
-		// 		// Conditions to check
-		// 		const markdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
-		// 		if (markdownView) {
-		// 			// If checking is true, we're simply "checking" if the command can be run.
-		// 			// If checking is false, then we want to actually perform the operation.
-		// 			if (!checking) {
-		// 				new SampleModal(this.app).open();
-		// 			}
-
-		// 			// This command will only show up in Command Palette when the check function returns true
-		// 			return true;
-		// 		}
-		// 	}
-		// });
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new HugoPublishSettingTab(this.app, this));
-
-		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
-		// Using this function will automatically remove the event listener when this plugin is disabled.
-		// this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-		// 	console.log('click', evt);
-		// });
-
-		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
-		// this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
 	}
 
 	onunload() {
@@ -179,9 +128,8 @@ export default class HugoPublishPlugin extends Plugin {
 			const abf = this.app.vault.getAbstractFileByPath(f.path);
 			// copy files to blog dir
 			if (abf) {
-				//const src = path.join(this.base_path, abf.path);
-				const dst = path.join(this.settings.get_blog_abs_dir(), f.path);
-
+				const src = path.join(this.base_path, abf.path);
+				const dst = path.join(this.settings.get_blog_abs_dir(), path.basename(f.path));
 				if (meta?.embeds) {
 					// copy embeds to static dir
 					for (const v of meta.embeds) {
@@ -190,7 +138,7 @@ export default class HugoPublishPlugin extends Plugin {
 							link2path.set(v.link, [embed_f.path, false]);
 							const src = path.join(this.base_path, embed_f.path);
 							const dst = path.join(this.settings.get_static_abs_dir(), embed_f.path);
-							//console.log(`copy ${src} to ${dst}`);
+							// console.log(`copy ${src} to ${dst}`);
 							await util.copy_file(src, dst);
 						}
 					}
@@ -238,7 +186,7 @@ export default class HugoPublishPlugin extends Plugin {
 
 				// body = remark.stringify(ast);
 				body = toMarkdown(ast, { extensions: [mathToMarkdown(), gfmTableToMarkdown()] });
-				//console.log(`write ${src} to ${dst}`);
+				console.log(`write ${src} to ${dst}`);
 				await util.write_md(dst, header, body)
 			}
 		}
